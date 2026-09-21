@@ -2,7 +2,6 @@
 
 require_once "../includes/db.php";
 require_once "includes/admin-header.php";
-require_once "includes/admin-sidebar.php";
 
 $success = "";
 $error = "";

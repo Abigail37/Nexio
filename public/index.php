@@ -47,7 +47,7 @@ $productStmt = $pdo->query(
      WHERE p.is_active = 1
        AND c.is_active = 1
      ORDER BY RAND()
-     LIMIT 8"
+     LIMIT 6"
 );
 
 $featuredProducts = $productStmt->fetchAll();

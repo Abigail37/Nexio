@@ -193,7 +193,6 @@ $bestSellingProducts =
 $pageTitle = "Dashboard";
 
 require_once "includes/admin-header.php";
-require_once "includes/admin-sidebar.php";
 
 ?>
 
@@ -535,7 +534,6 @@ require_once "includes/admin-sidebar.php";
         <div class="table-responsive">
           <table id="basic-datatables" class="display table table-striped table-hover">
             <thead>
-
               <tr>
 
                 <th>

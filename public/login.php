@@ -150,12 +150,43 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                     <label for="password">
                         Password
                     </label>
-                    <input
-                        type="password"
-                        id="password"
-                        name="password"
-                        placeholder="Enter your password"
-                        required>
+                    <div style="position: relative;">
+                        <input
+                            type="password"
+                            name="password"
+                            id="loginPassword"
+                            class="form-control"
+                            required>
+
+                        <button
+                            type="button"
+                            onclick="togglePassword('loginPassword', this)"
+                            aria-label="Show password"
+                            style="
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            border: none;
+            background: transparent;
+            padding: 4px;
+            cursor: pointer;
+            color: #6b7280;
+        ">
+                            <svg
+                                width="20"
+                                height="20"
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
+                                stroke-width="2"
+                                stroke-linecap="round"
+                                stroke-linejoin="round">
+                                <path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z" />
+                                <circle cx="12" cy="12" r="3" />
+                            </svg>
+                        </button>
+                    </div>
 
                     <div class="forgot-password-link">
                         <a href="forgot-password.php">
@@ -190,6 +221,54 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         </div>
 
     </div>
+
+    <script>
+        function togglePassword(inputId, button) {
+            const input = document.getElementById(inputId);
+
+            if (input.type === "password") {
+                input.type = "text";
+                button.setAttribute("aria-label", "Hide password");
+
+                button.innerHTML = `
+            <svg
+                width="20"
+                height="20"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+            >
+                <path d="M3 3l18 18"/>
+                <path d="M10.6 10.6a2 2 0 0 0 2.8 2.8"/>
+                <path d="M9.9 4.2A10.8 10.8 0 0 1 12 4c6.5 0 10 8 10 8a18.5 18.5 0 0 1-3.2 4.6"/>
+                <path d="M6.6 6.6C3.7 8.5 2 12 2 12s3.5 8 10 8c1.8 0 3.4-.5 4.8-1.2"/>
+            </svg>
+        `;
+            } else {
+                input.type = "password";
+                button.setAttribute("aria-label", "Show password");
+
+                button.innerHTML = `
+            <svg
+                width="20"
+                height="20"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+            >
+                <path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"/>
+                <circle cx="12" cy="12" r="3"/>
+            </svg>
+        `;
+            }
+        }
+    </script>
 
 </body>
 

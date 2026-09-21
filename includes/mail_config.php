@@ -4,9 +4,9 @@ return [
     'host' => 'smtp.gmail.com',
     'username' => 'abigailogunmola37@gmail.com',
     'password' => 'fnsieojzpykbrtvl',
-    'port' => 465,
-    'encryption' => 'ssl',
+    'port' => 587,
+    'encryption' => 'tls',
 
     'from_email' => 'abigailogunmola37@gmail.com',
-    'from_name' => 'Sales Management System'
+    'from_name' => 'Nexio'
 ];

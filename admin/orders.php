@@ -61,8 +61,6 @@ $orders = $stmt->fetchAll();
 $pageTitle = "Orders";
 
 require_once "includes/admin-header.php";
-require_once "includes/admin-sidebar.php";
-
 ?>
 
 <div class="container">

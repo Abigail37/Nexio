@@ -292,7 +292,6 @@ $suppliers = $stmt->fetchAll();
 $resultCount = count($suppliers);
 
 require_once "includes/admin-header.php";
-require_once "includes/admin-sidebar.php";
 
 ?>
 

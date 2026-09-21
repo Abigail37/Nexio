@@ -28,7 +28,7 @@ function sendPasswordSetupEmail($recipientEmail, $recipientName, $setupLink)
         $mail->Subject = 'Set Up Your Account';
 
         $mail->Body = "
-            <h2>Welcome to the Sales Management System</h2>
+            <h2>Welcome to Nexio</h2>
             <p>Hello " . htmlspecialchars($recipientName) . ",</p>
             <p> An account has been created for you.</p>
             <p> Click the button below to create your password:</p>

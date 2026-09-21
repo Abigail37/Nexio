@@ -1,3 +1,12 @@
+<?php
+
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+
+$isLoggedIn = isset($_SESSION['user_id']);
+?>
+
 </main>
 
 <section class="newsletter-section">
@@ -64,14 +73,19 @@
                         <a href="cart.php">Shopping Cart</a>
                     </li>
                     <li>
-                        <a href="login.php">Login</a>
-                    </li>
-                    <li>
-                        <a href="register.php">Create Account</a>
-                    </li>
-                    <li>
                         <a href="contact.php">Contact Us</a>
                     </li>
+                    <?php if ($isLoggedIn): ?>
+
+                        <li><a href="account.php">My Account</a></li>
+                        <li><a href="logout.php">Logout</a></li>
+
+                    <?php else: ?>
+
+                        <li><a href="login.php">Login</a></li>
+                        <li><a href="register.php">Create Account</a></li>
+
+                    <?php endif; ?>
                 </ul>
             </div>
 
@@ -112,4 +126,5 @@
 <script src="./assets/js/script.js?v=2"></script>
 
 </body>
+
 </html>

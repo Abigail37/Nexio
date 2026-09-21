@@ -53,7 +53,6 @@ $transactions = $stmt->fetchAll();
 $pageTitle = "Transactions";
 
 require_once "includes/admin-header.php";
-require_once "includes/admin-sidebar.php";
 
 ?>
 

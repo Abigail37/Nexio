@@ -13,11 +13,7 @@
                 <button class="btn btn-toggle toggle-sidebar">
                     <i class="gg-menu-right"></i>
                 </button>
-                <button class="btn btn-toggle sidenav-toggler">
-                    <i class="gg-menu-left"></i>
-                </button>
             </div>
-
             <button class="topbar-toggler more">
                 <i class="gg-more-vertical-alt"></i>
             </button>
@@ -29,7 +25,7 @@
         <div class="sidebar-content">
             <ul class="nav nav-secondary">
                 <!-- DASHBOARD -->
-                 <li class="nav-item">
+                <li class="nav-item">
                     <a href="../public/index.php">
                         <i class="fas fa-globe"></i>
                         <p>Home</p>

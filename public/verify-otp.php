@@ -2,6 +2,7 @@
 session_start();
 require_once "../includes/db.php";
 require_once "../includes/auth.php";
+require_once "../includes/mailer.php";
 
 $message = "";
 
@@ -12,6 +13,91 @@ if (!isset($_SESSION["verification_email"])) {
 }
 
 $email = $_SESSION["verification_email"];
+
+if (isset($_GET["resend"]) && $_GET["resend"] === "1") {
+
+    $lastResend = $_SESSION["otp_resend_time"] ?? 0;
+    $currentTime = time();
+
+    if (($currentTime - $lastResend) < 60) {
+
+        $remaining = 60 - ($currentTime - $lastResend);
+
+        $message = "Please wait {$remaining} seconds before requesting another code.";
+    } else {
+
+        // Get the user
+        $stmt = $pdo->prepare(
+            "SELECT id, name
+             FROM users
+             WHERE email = ?
+             LIMIT 1"
+        );
+
+        $stmt->execute([$email]);
+        $user = $stmt->fetch();
+
+        if (!$user) {
+
+            $message = "Account not found. Please register again.";
+        } else {
+
+            // Generate new OTP
+            $otp = (string) random_int(100000, 999999);
+
+            $hashedOTP = password_hash(
+                $otp,
+                PASSWORD_DEFAULT
+            );
+
+            $expiresAt = date(
+                "Y-m-d H:i:s",
+                strtotime("+5 minutes")
+            );
+
+            // Invalidate previous OTPs
+            $stmt = $pdo->prepare(
+                "UPDATE email_otps
+                 SET verified_at = NOW()
+                 WHERE email = ?
+                 AND verified_at IS NULL"
+            );
+
+            $stmt->execute([$email]);
+
+            // Save new OTP
+            $stmt = $pdo->prepare(
+                "INSERT INTO email_otps
+                (user_id, email, otp_code, expires_at, attempts)
+                VALUES (?, ?, ?, ?, 0)"
+            );
+
+            $stmt->execute([
+                $user["id"],
+                $email,
+                $hashedOTP,
+                $expiresAt
+            ]);
+
+            // Send new OTP
+            $emailSent = sendOTPEmail(
+                $email,
+                $user["name"],
+                $otp
+            );
+
+            if ($emailSent) {
+
+                $_SESSION["otp_resend_time"] = $currentTime;
+
+                $message = "A new verification code has been sent to your email.";
+            } else {
+
+                $message = "We could not send the new verification code. Please try again.";
+            }
+        }
+    }
+}
 
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
@@ -193,15 +279,59 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                     Didn't receive the code?
                 </p>
 
-                <a href="#">
-                    Request a new code
-                </a>
+                <?php
+                $lastResend = $_SESSION["otp_resend_time"] ?? 0;
+                $cooldownRemaining = max(
+                    0,
+                    60 - (time() - $lastResend)
+                );
+                ?>
+
+                <?php if ($cooldownRemaining > 0): ?>
+
+                    <span class="resend-disabled">
+                        Request a new code (<span id="resendCountdown"><?= $cooldownRemaining ?></span>s)
+                    </span>
+
+                <?php else: ?>
+
+                    <a href="verify-otp.php?resend=1">
+                        Request a new code
+                    </a>
+
+                <?php endif; ?>
 
             </div>
 
         </div>
 
     </div>
+
+    <script>
+        let countdown = document.getElementById("resendCountdown");
+
+        if (countdown) {
+
+            let remaining = parseInt(countdown.textContent);
+
+            const timer = setInterval(function() {
+
+                remaining--;
+
+                if (remaining <= 0) {
+
+                    clearInterval(timer);
+
+                    window.location.reload();
+
+                } else {
+
+                    countdown.textContent = remaining;
+                }
+
+            }, 1000);
+        }
+    </script>
 
 </body>
 

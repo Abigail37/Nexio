@@ -217,7 +217,6 @@ foreach ($productReport as $product) {
 $pageTitle = "Reports";
 
 require_once "includes/admin-header.php";
-require_once "includes/admin-sidebar.php";
 
 ?>
 

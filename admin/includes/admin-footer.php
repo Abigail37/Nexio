@@ -5,9 +5,12 @@
 <script src="assets/js/core/popper.min.js"></script>
 <script src="assets/js/core/bootstrap.min.js"></script>
 
+<!-- Scrollbar Plugin -->
+<script src="assets/js/plugin/jquery-scrollbar/jquery.scrollbar.min.js"></script>
+
 <!-- KaiAdmin JS -->
 <script src="assets/js/kaiadmin.min.js"></script>
-<script src="assets/js/charts.js"></script>
+<script src="assets/js/plugin/chart.js/chart.min.js"></script>
 
 <!-- DataTables -->
  <script src="assets/js/plugin/datatables/datatables.min.js"></script>

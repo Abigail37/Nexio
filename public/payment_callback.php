@@ -3,6 +3,7 @@
 require_once "../includes/db.php";
 require_once "../includes/auth.php";
 require_once "../includes/paystack_config.php";
+require_once "../includes/mailer.php";
 
 requireLogin();
 
@@ -82,7 +83,7 @@ if ($payment['payment_status'] === 'successful') {
 
     header(
         "Location: order.php?id=" .
-        (int) $payment['order_id']
+            (int) $payment['order_id']
     );
 
     exit;
@@ -134,9 +135,7 @@ curl_close($ch);
 
 if ($response === false || $curlError !== '') {
 
-    die(
-        "Unable to verify payment. Please contact support."
-    );
+    die("Unable to verify payment. Please contact support.");
 }
 
 
@@ -179,9 +178,7 @@ $transactionReference =
 
 if ($transactionReference !== $reference) {
 
-    die(
-        "Payment reference verification failed."
-    );
+    die("Payment reference verification failed.");
 }
 
 
@@ -206,15 +203,13 @@ if ($transactionAmount !== $expectedAmount) {
 
     $failedStmt->execute([
         ':transaction_reference' =>
-            $transactionReference,
+        $transactionReference,
 
         ':payment_id' =>
-            $payment['payment_id']
+        $payment['payment_id']
     ]);
 
-    die(
-        "Payment amount does not match the order amount."
-    );
+    die("Payment amount does not match the order amount.");
 }
 
 
@@ -249,7 +244,7 @@ if ($transactionStatus === 'success') {
 
         $lockPaymentStmt->execute([
             ':payment_id' =>
-                $payment['payment_id']
+            $payment['payment_id']
         ]);
 
         $lockedPayment =
@@ -271,7 +266,7 @@ if ($transactionStatus === 'success') {
 
             header(
                 "Location: order.php?id=" .
-                (int) $payment['order_id']
+                    (int) $payment['order_id']
             );
 
             exit;
@@ -303,7 +298,7 @@ if ($transactionStatus === 'success') {
 
         $itemsStmt->execute([
             ':order_id' =>
-                $payment['order_id']
+            $payment['order_id']
         ]);
 
         $orderItems = $itemsStmt->fetchAll();
@@ -387,7 +382,7 @@ if ($transactionStatus === 'success') {
 
                 throw new Exception(
                     "Invalid quantity for " .
-                    $item['name'] . "."
+                        $item['name'] . "."
                 );
             }
 
@@ -396,7 +391,7 @@ if ($transactionStatus === 'success') {
 
                 throw new Exception(
                     "Insufficient stock for " .
-                    $item['name'] . "."
+                        $item['name'] . "."
                 );
             }
 
@@ -413,10 +408,10 @@ if ($transactionStatus === 'success') {
 
             $stockStmt->execute([
                 ':quantity' =>
-                    $quantity,
+                $quantity,
 
                 ':product_id' =>
-                    $productId
+                $productId
             ]);
 
 
@@ -424,7 +419,7 @@ if ($transactionStatus === 'success') {
 
                 throw new Exception(
                     "Unable to update stock for " .
-                    $item['name'] . "."
+                        $item['name'] . "."
                 );
             }
 
@@ -437,22 +432,22 @@ if ($transactionStatus === 'success') {
 
             $inventoryStmt->execute([
                 ':product_id' =>
-                    $productId,
+                $productId,
 
                 ':user_id' =>
-                    getUserId(),
+                getUserId(),
 
                 ':quantity' =>
-                    $quantity,
+                $quantity,
 
                 ':previous_stock' =>
-                    $previousStock,
+                $previousStock,
 
                 ':new_stock' =>
-                    $newStock,
+                $newStock,
 
                 ':reason' =>
-                    'Sale - Order #' .
+                'Sale - Order #' .
                     $payment['order_id']
             ]);
         }
@@ -479,20 +474,20 @@ if ($transactionStatus === 'success') {
 
         $paymentStmt->execute([
             ':transaction_reference' =>
-                $transactionReference,
+            $transactionReference,
 
             ':paid_at' =>
-                !empty($transaction['paid_at'])
-                    ? date(
-                        'Y-m-d H:i:s',
-                        strtotime(
-                            $transaction['paid_at']
-                        )
+            !empty($transaction['paid_at'])
+                ? date(
+                    'Y-m-d H:i:s',
+                    strtotime(
+                        $transaction['paid_at']
                     )
-                    : date('Y-m-d H:i:s'),
+                )
+                : date('Y-m-d H:i:s'),
 
             ':payment_id' =>
-                $payment['payment_id']
+            $payment['payment_id']
         ]);
 
 
@@ -516,10 +511,10 @@ if ($transactionStatus === 'success') {
 
         $orderStmt->execute([
             ':order_id' =>
-                $payment['order_id'],
+            $payment['order_id'],
 
             ':user_id' =>
-                getUserId()
+            getUserId()
         ]);
 
 
@@ -530,6 +525,66 @@ if ($transactionStatus === 'success') {
         */
 
         $pdo->commit();
+
+        try {
+
+            // Get customer details
+            $customerStmt = $pdo->prepare("
+        SELECT
+            name,
+            email
+        FROM users
+        WHERE id = :user_id
+        LIMIT 1
+    ");
+
+            $customerStmt->execute([
+                ':user_id' => $payment['user_id']
+            ]);
+
+            $customer = $customerStmt->fetch();
+
+
+            // Get order items with prices
+            $emailItemsStmt = $pdo->prepare("
+        SELECT
+            oi.quantity,
+            oi.price,
+            p.name
+
+        FROM order_items oi
+
+        INNER JOIN products p
+            ON p.id = oi.product_id
+
+        WHERE oi.order_id = :order_id
+    ");
+
+            $emailItemsStmt->execute([
+                ':order_id' => $payment['order_id']
+            ]);
+
+            $emailItems = $emailItemsStmt->fetchAll();
+
+
+            if ($customer && !empty($emailItems)) {
+
+                sendOrderConfirmationEmail(
+                    $customer['email'],
+                    $customer['name'],
+                    $payment['order_id'],
+                    $payment['total_amount'],
+                    $emailItems
+                );
+            }
+        } catch (Exception $e) {
+
+            // Email failure should not affect the completed order.
+            error_log(
+                "Nexio Order Confirmation Email Error: " .
+                    $e->getMessage()
+            );
+        }
 
 
         /*
@@ -553,21 +608,17 @@ if ($transactionStatus === 'success') {
 
         header(
             "Location: order.php?id=" .
-            (int) $payment['order_id']
+                (int) $payment['order_id']
         );
 
         exit;
-
-
     } catch (Exception $e) {
 
         if ($pdo->inTransaction()) {
             $pdo->rollBack();
         }
 
-        die(
-            "Payment was successful, but the order could not be completed. Please contact support."
-        );
+        die("Payment was successful, but the order could not be completed. Please contact support.");
     }
 }
 
@@ -591,12 +642,12 @@ $failedStmt = $pdo->prepare("
 
 $failedStmt->execute([
     ':transaction_reference' =>
-        $transactionReference !== ''
-            ? $transactionReference
-            : null,
+    $transactionReference !== ''
+        ? $transactionReference
+        : null,
 
     ':payment_id' =>
-        $payment['payment_id']
+    $payment['payment_id']
 ]);
 
 
@@ -620,8 +671,7 @@ require_once "includes/header.php";
 
         <a
             href="payment.php?order_id=<?= (int) $payment['order_id'] ?>"
-            class="btn"
-        >
+            class="btn">
             Try Payment Again
         </a>
 

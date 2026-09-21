@@ -104,7 +104,6 @@ $storeAddress =
 $pageTitle = "Settings";
 
 require_once "includes/admin-header.php";
-require_once "includes/admin-sidebar.php";
 
 ?>
 

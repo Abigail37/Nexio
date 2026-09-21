@@ -242,7 +242,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 
 require_once "includes/admin-header.php";
-require_once "includes/admin-sidebar.php";
 
 ?>
 

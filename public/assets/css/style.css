@@ -7461,14 +7461,14 @@ body.reset-password-page {
         min-height: 290px;
     }
 
-    .hero-product-main {
+    /* .hero-product-main {
         width: 225px;
         height: 225px;
 
         box-shadow:
             0 20px 45px rgba(0, 0, 0, 0.18),
             0 0 0 8px rgba(255, 255, 255, 0.08);
-    }
+    } */
 
     .hero-product-main img {
         padding: 20px;
@@ -7855,9 +7855,9 @@ body.reset-password-page {
 
 @media (max-width: 576px) {
 
-    .site-footer {
+    /* .site-footer {
         margin-top: 60px;
-    }
+    } */
 
     .footer-main {
         grid-template-columns: 1fr 1fr;
@@ -7915,6 +7915,7 @@ body.reset-password-page {
 
     border: 0;
     border-radius: 50%;
+    margin-bottom: 30px;
 
     background: var(--accent);
     color: var(--white);
@@ -8078,8 +8079,8 @@ body.reset-password-page {
     }
 
     .newsletter-form {
-        flex-direction: column;
-        padding: 6px;
+        flex-direction: row;
+        padding: 3px;
     }
 
     .newsletter-form input {
@@ -8087,7 +8088,7 @@ body.reset-password-page {
     }
 
     .newsletter-form button {
-        width: 100%;
+        width: 35%;
     }
 
 }
