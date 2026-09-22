@@ -547,18 +547,19 @@ if ($transactionStatus === 'success') {
 
             // Get order items with prices
             $emailItemsStmt = $pdo->prepare("
-        SELECT
-            oi.quantity,
-            oi.price,
-            p.name
+    SELECT
+        oi.quantity,
+        oi.price_at_purchase,
+        oi.subtotal,
+        p.name
 
-        FROM order_items oi
+    FROM order_items oi
 
-        INNER JOIN products p
-            ON p.id = oi.product_id
+    INNER JOIN products p
+        ON p.id = oi.product_id
 
-        WHERE oi.order_id = :order_id
-    ");
+    WHERE oi.order_id = :order_id
+");
 
             $emailItemsStmt->execute([
                 ':order_id' => $payment['order_id']
@@ -566,6 +567,8 @@ if ($transactionStatus === 'success') {
 
             $emailItems = $emailItemsStmt->fetchAll();
 
+            error_log("NEXIO EMAIL DEBUG - Customer: " . print_r($customer, true));
+            error_log("NEXIO EMAIL DEBUG - Items: " . print_r($emailItems, true));
 
             if ($customer && !empty($emailItems)) {
 
