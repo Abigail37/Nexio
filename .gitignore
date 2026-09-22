@@ -1,6 +1,6 @@
 # Environment / secret configuration
 includes/mail_config.php
-includes/payment_config.php
+includes/paystack_config.php
 
 # Uploaded files
 public/uploads/
