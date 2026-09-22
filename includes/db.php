@@ -1,9 +1,9 @@
 <?php
 
-$host = "localhost";
-$dbname = "nexio";
-$username = "root";
-$password = "";
+$host = getenv('DB_HOST') ?: 'localhost';
+$dbname = getenv('DB_NAME') ?: 'nexio';
+$username = getenv('DB_USERNAME') ?: 'root';
+$password = getenv('DB_PASSWORD') ?: '';
 
 try {
     $pdo = new PDO(
@@ -12,12 +12,18 @@ try {
         $password
     );
 
-    // Make PDO throw exceptions when an error occurs
-    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+    $pdo->setAttribute(
+        PDO::ATTR_ERRMODE,
+        PDO::ERRMODE_EXCEPTION
+    );
 
-    // Return database results as associative arrays
-    $pdo->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
+    $pdo->setAttribute(
+        PDO::ATTR_DEFAULT_FETCH_MODE,
+        PDO::FETCH_ASSOC
+    );
 
 } catch (PDOException $e) {
-    die("Database connection failed: " . $e->getMessage());
+    error_log("Nexio Database Error: " . $e->getMessage());
+
+    die("Unable to connect to the database.");
 }
